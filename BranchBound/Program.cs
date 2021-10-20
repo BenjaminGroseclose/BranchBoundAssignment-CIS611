@@ -31,15 +31,20 @@ namespace BranchBound
 
     Input: 4 5 4 3 1
     Output: 4
+
+    Input: 5, 2, 4, 3
+    Output: 3
     */
     public class Program
     {
+        private static int bestValue = 0;
         static void Main(string[] args)
         {
             //int[] numbers = new int[] { 4, 5, 4, 3, 1 };
-            int[] numbers = new int[] { 50, 5, 24, 84, 58, 21, 57, 98, 51, 6, 16, 75, 95, 11, 23, 92, 85, 29, 56, 45, 55, 73, 20, 4, 34, 76, 96, 63, 30, 93, 2, 19, 39, 14, 71, 80, 40, 69, 54, 62, 42, 1, 10, 35, 8, 22, 70, 67, 15, 27, 38 };
+            int[] numbers = new int[] { 4, 5, 2, 4, 3 };
+            //int[] numbers = new int[] { 50, 5, 24, 84, 58, 21, 57, 98, 51, 6, 16, 75, 95, 11, 23, 92, 85, 29, 56, 45, 55, 73, 20, 4, 34, 76, 96, 63, 30, 93, 2, 19, 39, 14, 71, 80, 40, 69, 54, 62, 42, 1, 10, 35, 8, 22, 70, 67, 15, 27, 38 };
 
-            if (7 == Process(numbers))
+            if (3 == Process(numbers))
             {
                 Console.WriteLine("Success!");
             }
@@ -66,7 +71,7 @@ namespace BranchBound
 
                 stopwatch.Stop();
                 Console.WriteLine($"Total time in milliseconds: {stopwatch.ElapsedMilliseconds}");
-                return finalValue;
+                return bestValue;
             }
             else if (depth == numbers[0] + 1)
             {
@@ -78,9 +83,13 @@ namespace BranchBound
                 Console.WriteLine();
                 int retval = train.Count;
 
-                Console.WriteLine($"Return Value: {retval}");
+                if (retval > bestValue)
+                {
+                    bestValue = retval;
+                    Console.WriteLine($"Updating return value to be: {bestValue}");
+                }
 
-                return retval;
+                return bestValue;
             }
             else
             {
@@ -93,19 +102,20 @@ namespace BranchBound
                 // Current train car to add
                 int currentTrainWeight = numbers[depth];
 
-
-                // Check if we should add the train car
-                if (upperBound > currentTrainWeight && lowerBound < currentTrainWeight)
+                if (bestValue > (train.Count + numbers[0] - depth))
                 {
-                    // Do not add
-                    finalValue = Process(numbers, depth + 1, train);
+                    return bestValue;
                 }
-                else if (currentTrainWeight >= upperBound)
+
+                // Do not add
+                finalValue = Process(numbers, depth + 1, train);
+                
+                if (currentTrainWeight >= upperBound)
                 {
                     // Add to front
                     finalValue = Process(numbers, depth + 1, AddToFront(train, numbers[depth]));
                 }
-                else
+                else if (currentTrainWeight <= lowerBound)
                 {
                     // Add to Back
                     finalValue = Process(numbers, depth + 1, AddToBack(train, numbers[depth]));
