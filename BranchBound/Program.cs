@@ -37,7 +37,7 @@ namespace BranchBound
     */
     public class Program
     {
-        private static int bestValue = 0;
+        public static int BestValue = 0;
         static void Main(string[] args)
         {
             //int[] numbers = new int[] { 4, 5, 4, 3, 1 };
@@ -64,14 +64,14 @@ namespace BranchBound
             {
                 train = new List<int>()
                 {
-                    numbers.ElementAt(1)
+                    numbers.ElementAt(depth)
                 };
 
                 finalValue = Process(numbers, depth + 1, train);
 
                 stopwatch.Stop();
                 Console.WriteLine($"Total time in milliseconds: {stopwatch.ElapsedMilliseconds}");
-                return bestValue;
+                return BestValue;
             }
             else if (depth == numbers[0] + 1)
             {
@@ -83,13 +83,13 @@ namespace BranchBound
                 Console.WriteLine();
                 int retval = train.Count;
 
-                if (retval > bestValue)
+                if (retval > BestValue)
                 {
-                    bestValue = retval;
-                    Console.WriteLine($"Updating return value to be: {bestValue}");
+                    BestValue = retval;
+                    Console.WriteLine($"Updating return value to be: {BestValue}");
                 }
 
-                return bestValue;
+                return BestValue;
             }
             else
             {
@@ -102,11 +102,17 @@ namespace BranchBound
                 // Current train car to add
                 int currentTrainWeight = numbers[depth];
 
-                if (bestValue > (train.Count + numbers[0] - depth))
+                // START BOUND
+                // If best value is greater than the current number of cars in the 
+                // train + the remaining cars to add then we will always choose the 
+                // current best value so there is no point in continuing
+                if (BestValue > (train.Count + numbers[0] - depth))
                 {
-                    return bestValue;
+                    return BestValue;
                 }
+                // END BOUND
 
+                // START BRANCHING
                 // Do not add
                 finalValue = Process(numbers, depth + 1, train);
                 
@@ -120,6 +126,7 @@ namespace BranchBound
                     // Add to Back
                     finalValue = Process(numbers, depth + 1, AddToBack(train, numbers[depth]));
                 }
+                // END BRANCHING
 
                 return finalValue;
             }
